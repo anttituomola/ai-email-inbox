@@ -1,0 +1,5 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\AnttiTuomola\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "python.analysis.extraPaths": ["backend"],
+  "css.validate": false
+}
