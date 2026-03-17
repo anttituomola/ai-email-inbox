@@ -23,11 +23,11 @@ export function ReviewChecklist({ hasDraft, draftResponse, isLoading = false }: 
     );
   }
 
-  // If draft was written manually (not AI-generated), show a simple message
+  // Review may still be pending for newly typed or restored drafts.
   if (!draftResponse) {
     return (
       <div className="rounded-lg border border-gray-300 bg-gray-50 p-5 text-sm text-gray-600 shadow-sm">
-        AI review is only available for generated drafts.
+        Review will appear after a short pause.
       </div>
     );
   }

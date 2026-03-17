@@ -30,6 +30,26 @@ def get_openai_model_config() -> tuple[tuple[str, ...], str]:
         return OPENAI_MODEL_OPTIONS, model_from_env
     return OPENAI_MODEL_OPTIONS, DEFAULT_OPENAI_MODEL
 
+
+def _normalize_knowledge_key(value: str) -> str:
+    return value.strip().lower().replace(" ", "_")
+
+
+def _resolve_citation_source_facts(ai_output: dict, knowledge_entries: list[KnowledgeEntry]) -> None:
+    knowledge_by_topic = {
+        _normalize_knowledge_key(entry.topic): entry.content
+        for entry in knowledge_entries
+    }
+
+    for citation in ai_output.get("citations", []):
+        source_fact = citation.get("source_fact", "")
+        if not isinstance(source_fact, str):
+            continue
+
+        resolved_source_fact = knowledge_by_topic.get(_normalize_knowledge_key(source_fact))
+        if resolved_source_fact:
+            citation["source_fact"] = resolved_source_fact
+
 async def generate_draft_for_email(
     db: AsyncSession, email_id: int, model: str | None = None
 ) -> GenerateDraftResponse:
@@ -65,6 +85,7 @@ async def generate_draft_for_email(
         )
 
         ai_output = parse_ai_output(response)
+        _resolve_citation_source_facts(ai_output, knowledge_entries)
         email.draft_text = ai_output["draft_text"]
         return build_generate_draft_response(ai_output)
     except Exception as exc:
@@ -106,6 +127,7 @@ async def review_existing_draft(
         )
 
         ai_output = parse_ai_output(response)
+        _resolve_citation_source_facts(ai_output, knowledge_entries)
         return build_review_draft_response(ai_output)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"AI review failed: {str(exc)}")

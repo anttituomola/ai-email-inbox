@@ -218,15 +218,21 @@ export function ReviewerLandingPage({ onOpenApp, isAuthenticated, onAuthChange }
               <ExternalLink className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
             </a>
 
-            <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-              <div className="rounded-lg bg-gray-400 p-2 text-white">
+            <a
+              href="https://www.loom.com/share/71f3b0586a124632b38e404db3ff9d90"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div className="rounded-lg bg-violet-600 p-2 text-white">
                 <Video className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="font-medium text-gray-700">Loom Walkthrough</p>
-                <p className="text-sm text-gray-500">Coming soon (max 5 min)</p>
+                <p className="font-medium text-gray-900">Loom Walkthrough</p>
+                <p className="text-sm text-gray-500 truncate">5-minute product walkthrough</p>
               </div>
-            </div>
+              <ExternalLink className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
+            </a>
           </div>
         </section>
 
@@ -248,18 +254,18 @@ export function ReviewerLandingPage({ onOpenApp, isAuthenticated, onAuthChange }
           <article className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900">Walkthrough Preview</h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              The Loom video (max 5 minutes) will cover:
+              A short recorded demo of the trust-first workflow, from dashboard overview to draft review and send flow.
             </p>
-            <BulletList
-              items={[
-                <><strong>Implementation approach</strong>: FastAPI backend, React frontend, OpenAI integration</>,
-                <><strong>UX decisions</strong>: Trust-first design, visible AI reasoning, "Send & Next" workflow</>,
-                <><strong>Trade-offs</strong>: Speed vs. accuracy, scope limitations, intentional simplicity</>,
-                <><strong>Future improvements</strong>: Multi-layer validation, richer data, learning from feedback</>,
-              ]}
-              tone="soft"
-              className="mt-4 space-y-3 text-sm leading-6 text-gray-600"
-            />
+            <div className="mt-5 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 shadow-sm">
+              <div className="aspect-video">
+                <iframe
+                  src="https://www.loom.com/embed/71f3b0586a124632b38e404db3ff9d90"
+                  title="AI Email Inbox Loom Walkthrough"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
+              </div>
+            </div>
           </article>
 
           <article className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">

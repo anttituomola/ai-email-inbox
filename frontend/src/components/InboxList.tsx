@@ -10,6 +10,10 @@ interface InboxListProps {
   isDashboardSelected: boolean;
   onSelect: (id: number | null) => void;
   filter: EmailFilter;
+  statusCounts: {
+    open: number;
+    needsReview: number;
+  };
   onFilterChange: (filter: EmailFilter) => void;
   sortOrder: SortOrder;
   onSortChange: (order: SortOrder) => void;
@@ -21,6 +25,7 @@ export function InboxList({
   isDashboardSelected,
   onSelect,
   filter,
+  statusCounts,
   onFilterChange,
   sortOrder,
   onSortChange,
@@ -60,6 +65,8 @@ export function InboxList({
                 }`}
               >
                 {filterOption.label}
+                {filterOption.value === 'open' && ` (${statusCounts.open})`}
+                {filterOption.value === 'needs_review' && ` (${statusCounts.needsReview})`}
               </button>
             ))}
           </div>
@@ -99,7 +106,7 @@ export function InboxList({
                   {email.preview}
                 </span>
                 <div className="flex-shrink-0 flex items-center gap-2">
-                  {email.has_draft && (
+                  {email.has_draft && email.status !== 'resolved' && (
                     <Tooltip content="Draft available">
                       <span
                         className="inline-block h-2 w-2 rounded-full bg-blue-600/80"

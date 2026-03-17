@@ -54,16 +54,28 @@ export function EmailWorkspace({
   const [isReviewLoading, setIsReviewLoading] = useState(false);
   const [generationState, setGenerationState] = useState(individualDraftGenerationManager.getState());
 
-  // Reset state when email changes
+  // Reset workspace state when switching to a different email.
   useEffect(() => {
-    if (email?.id) {
-      setDraft(email.draft_text || '');
-      setDraftResponse(null);
-      setEditorMode(email.draft_text ? 'preview' : 'edit');
-      setError(null);
-      setIsReviewLoading(false);
+    if (!email?.id) {
+      return;
     }
-  }, [email?.draft_text, email?.id]);
+
+    setDraft(email.draft_text || '');
+    setDraftResponse(null);
+    setEditorMode(email.draft_text ? 'preview' : 'edit');
+    setError(null);
+    setIsReviewLoading(false);
+  }, [email?.id]);
+
+  // Keep the current email's draft in sync without resetting the full workspace state.
+  useEffect(() => {
+    if (!email?.id) {
+      return;
+    }
+
+    setDraft(email.draft_text || '');
+    setDraftResponse(null);
+  }, [email?.id, email?.draft_text]);
 
   useEffect(() => {
     return individualDraftGenerationManager.subscribe(setGenerationState);

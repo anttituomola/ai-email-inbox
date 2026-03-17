@@ -33,6 +33,7 @@ export function InboxApp({ onExitApp }: InboxAppProps) {
     setFilter,
     setSortOrder,
     sortOrder,
+    statusCounts,
     sortedEmails,
     view,
   } = useInboxController();
@@ -107,6 +108,7 @@ export function InboxApp({ onExitApp }: InboxAppProps) {
           isDashboardSelected={view === 'dashboard'}
           onSelect={handleSelect}
           filter={filter}
+          statusCounts={statusCounts}
           onFilterChange={setFilter}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}

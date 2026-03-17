@@ -24,17 +24,28 @@ export function useInboxController() {
   const [sortOrder, setSortOrder] = useState<SortOrder>(DEFAULT_SORT_ORDER);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusCounts, setStatusCounts] = useState({ open: 0, needsReview: 0 });
 
   const loadEmails = useCallback(async (nextFilter: EmailFilter = filter) => {
+    const fetchEmailsForFilter = async (targetFilter: EmailFilter) => {
+      const apiStatus = targetFilter === 'all' || targetFilter === 'unresolved' ? undefined : targetFilter;
+      const data = await api.getEmails(apiStatus);
+      return targetFilter === 'unresolved'
+        ? data.filter((email) => email.status === 'open' || email.status === 'needs_review')
+        : data;
+    };
+
     try {
       setIsLoading(true);
-      // For 'unresolved', fetch all and filter client-side
-      const apiStatus = nextFilter === 'all' || nextFilter === 'unresolved' ? undefined : nextFilter;
-      const data = await api.getEmails(apiStatus);
-      // Apply client-side filtering for 'unresolved'
-      const filteredData = nextFilter === 'unresolved'
-        ? data.filter(email => email.status === 'open' || email.status === 'needs_review')
-        : data;
+      const [filteredData, stats] = await Promise.all([
+        fetchEmailsForFilter(nextFilter),
+        api.getStats(),
+      ]);
+
+      setStatusCounts({
+        open: Math.max(0, stats.unresolved_count - stats.needs_review_count),
+        needsReview: stats.needs_review_count,
+      });
       setEmails(filteredData);
       setError(null);
       return filteredData;
@@ -202,6 +213,7 @@ export function useInboxController() {
     setFilter,
     setSortOrder,
     sortOrder,
+    statusCounts,
     sortedEmails,
     view,
   };

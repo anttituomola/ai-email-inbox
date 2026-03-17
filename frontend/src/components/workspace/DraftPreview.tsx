@@ -12,6 +12,12 @@ interface NormalizedText {
   indexMap: number[];
 }
 
+interface TextSegment {
+  start: number;
+  end: number;
+  text: string;
+}
+
 function normalizeForMatching(input: string): NormalizedText {
   const chars: string[] = [];
   const indexMap: number[] = [];
@@ -45,6 +51,117 @@ function normalizeForMatching(input: string): NormalizedText {
     text: chars.join(''),
     indexMap,
   };
+}
+
+function getMatchTokens(input: string): string[] {
+  return normalizeForMatching(input)
+    .text
+    .split(' ')
+    .filter(Boolean);
+}
+
+function trimSegment(text: string, start: number, end: number): TextSegment | null {
+  let trimmedStart = start;
+  let trimmedEnd = end;
+
+  while (trimmedStart < trimmedEnd && /\s/.test(text[trimmedStart])) {
+    trimmedStart += 1;
+  }
+
+  while (trimmedEnd > trimmedStart && /\s/.test(text[trimmedEnd - 1])) {
+    trimmedEnd -= 1;
+  }
+
+  if (trimmedStart >= trimmedEnd) {
+    return null;
+  }
+
+  return {
+    start: trimmedStart,
+    end: trimmedEnd,
+    text: text.slice(trimmedStart, trimmedEnd),
+  };
+}
+
+function getCandidateSegments(text: string): TextSegment[] {
+  const segments: TextSegment[] = [];
+  let lineStart = 0;
+
+  for (let index = 0; index <= text.length; index += 1) {
+    const isLineBoundary = index === text.length || text[index] === '\n';
+    if (!isLineBoundary) {
+      continue;
+    }
+
+    const lineEnd = index;
+    const trimmedLine = trimSegment(text, lineStart, lineEnd);
+    if (trimmedLine) {
+      segments.push(trimmedLine);
+
+      const sentenceRegex = /[^.!?\n]+[.!?]?/g;
+      for (const match of trimmedLine.text.matchAll(sentenceRegex)) {
+        const sentenceStart = trimmedLine.start + match.index!;
+        const sentenceEnd = sentenceStart + match[0].length;
+        const trimmedSentence = trimSegment(text, sentenceStart, sentenceEnd);
+        if (trimmedSentence) {
+          segments.push(trimmedSentence);
+        }
+      }
+    }
+
+    lineStart = index + 1;
+  }
+
+  return segments;
+}
+
+function findSegmentFallbackMatch(
+  text: string,
+  quote: string,
+  existingMatches: CitationMatch[],
+): { start: number; end: number } | null {
+  const quoteTokens = Array.from(new Set(getMatchTokens(quote)));
+  if (quoteTokens.length < 2) {
+    return null;
+  }
+
+  let bestMatch: { start: number; end: number; score: number } | null = null;
+
+  for (const segment of getCandidateSegments(text)) {
+    const overlaps = existingMatches.some((match) => segment.start < match.end && segment.end > match.start);
+    if (overlaps) {
+      continue;
+    }
+
+    const segmentTokens = new Set(getMatchTokens(segment.text));
+    if (segmentTokens.size === 0) {
+      continue;
+    }
+
+    const sharedTokens = quoteTokens.filter((token) => segmentTokens.has(token));
+    const coverage = sharedTokens.length / quoteTokens.length;
+    const hasNumber = quoteTokens.some((token) => /\d/.test(token));
+    const sharedNumberCount = sharedTokens.filter((token) => /\d/.test(token)).length;
+
+    if (sharedTokens.length < 2 || coverage < 0.5 || (hasNumber && sharedNumberCount === 0)) {
+      continue;
+    }
+
+    const score = coverage * 100 + sharedTokens.length - segment.text.length / 1000;
+    if (!bestMatch || score > bestMatch.score) {
+      bestMatch = {
+        start: segment.start,
+        end: segment.end,
+        score,
+      };
+    }
+  }
+
+  if (!bestMatch) {
+    return null;
+  }
+
+  return { start: bestMatch.start, end: bestMatch.end };
 }
 
 function findExactOrNormalizedMatch(
@@ -86,7 +203,7 @@ function findExactOrNormalizedMatch(
 
   const overlaps = existingMatches.some((match) => start < match.end && end > match.start);
   if (overlaps) {
-    return null;
+    return findSegmentFallbackMatch(text, quote, existingMatches);
   }
 
   return { start, end };
