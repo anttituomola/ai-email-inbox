@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
@@ -8,7 +8,8 @@ import os
 load_dotenv()
 
 from database import init_db
-from routes import emails, drafts, ai
+from routes import emails, drafts, ai, admin
+from routes.auth import router as auth_router, require_auth
 
 
 @asynccontextmanager
@@ -39,9 +40,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(emails.router, prefix="/api/emails", tags=["emails"])
-app.include_router(drafts.router, prefix="/api/drafts", tags=["drafts"])
-app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
+# Public routes (no auth required)
+app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
+
+# Protected routes (require auth)
+app.include_router(
+    emails,
+    prefix="/api/emails",
+    tags=["emails"],
+    dependencies=[Depends(require_auth)]
+)
+app.include_router(
+    drafts,
+    prefix="/api/drafts",
+    tags=["drafts"],
+    dependencies=[Depends(require_auth)]
+)
+app.include_router(
+    ai,
+    prefix="/api/ai",
+    tags=["ai"],
+    dependencies=[Depends(require_auth)]
+)
+app.include_router(
+    admin,
+    prefix="/api/admin",
+    tags=["admin"],
+    dependencies=[Depends(require_auth)]
+)
 
 
 @app.get("/health")

@@ -109,3 +109,17 @@ export type OpenDraftGenerationEvent =
       succeeded: number;
       failed: number;
     };
+
+// Auth types
+export interface LoginRequest {
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface SessionResponse {
+  authenticated: boolean;
+}

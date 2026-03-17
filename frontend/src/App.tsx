@@ -10,6 +10,7 @@ function resolveRoute(pathname: string) {
 
 function App() {
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -29,10 +30,18 @@ function App() {
     setCurrentPath(path);
   }, []);
 
+  const handleAuthChange = useCallback((authenticated: boolean) => {
+    setIsAuthenticated(authenticated);
+  }, []);
+
   return (
     resolveRoute(currentPath) === 'app'
       ? <InboxApp onExitApp={() => navigate('/')} />
-      : <ReviewerLandingPage onOpenApp={() => navigate(APP_PATH)} />
+      : <ReviewerLandingPage
+          onOpenApp={() => navigate(APP_PATH)}
+          isAuthenticated={isAuthenticated}
+          onAuthChange={handleAuthChange}
+        />
   );
 }
 

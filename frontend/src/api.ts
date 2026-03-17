@@ -6,9 +6,12 @@ import type {
   EmailStats,
   EmailStatus,
   GenerateDraftResponse,
+  LoginRequest,
+  LoginResponse,
   NextEmailResponse,
   OpenDraftGenerationEvent,
   ReviewDraftResponse,
+  SessionResponse,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
@@ -16,6 +19,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...options?.headers,
@@ -96,6 +100,21 @@ export const api = {
   // AI model config
   getAIModels: () => fetchAPI<AIModelsResponse>('/ai/models'),
 
+  // Auth
+  login: (password: string) =>
+    fetchAPI<LoginResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ password } satisfies LoginRequest),
+    }),
+
+  logout: () =>
+    fetchAPI<{ message: string }>('/auth/logout', {
+      method: 'POST',
+    }),
+
+  checkSession: () =>
+    fetchAPI<SessionResponse>('/auth/session'),
+
   // Reset demo state
   resetDemoData: () =>
     fetchAPI<DemoResetResponse>('/admin/reset-demo', {
@@ -109,6 +128,7 @@ export const api = {
   ) => {
     const response = await fetch(`${API_BASE}/ai/generate-open-drafts/stream`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

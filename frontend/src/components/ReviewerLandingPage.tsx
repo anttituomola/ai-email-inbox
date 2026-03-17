@@ -1,10 +1,12 @@
-import { useMemo, useState, type ReactNode } from 'react';
-import { ArrowRight, RefreshCcw, ShieldCheck, Workflow } from 'lucide-react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { ArrowRight, ExternalLink, Github, Lock, RefreshCcw, ShieldCheck, Video, Workflow } from 'lucide-react';
 import { api } from '../api';
 import { Button, Tooltip } from './shared';
 
 interface ReviewerLandingPageProps {
   onOpenApp: () => void;
+  isAuthenticated: boolean;
+  onAuthChange: (authenticated: boolean) => void;
 }
 
 const futureIdeas = [
@@ -42,9 +44,13 @@ function BulletList({
   );
 }
 
-export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
+export function ReviewerLandingPage({ onOpenApp, isAuthenticated, onAuthChange }: ReviewerLandingPageProps) {
   const [resetState, setResetState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
 
   const summaryCards = useMemo(() => [
     {
@@ -68,6 +74,56 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
       ],
     },
   ], []);
+
+  // Check session on mount
+  useEffect(() => {
+    api.checkSession()
+      .then((session) => {
+        onAuthChange(session.authenticated);
+      })
+      .catch(() => {
+        onAuthChange(false);
+      });
+  }, [onAuthChange]);
+
+  const handleOpenApp = () => {
+    if (isAuthenticated) {
+      onOpenApp();
+    } else {
+      setIsPasswordModalOpen(true);
+      setPassword('');
+      setLoginError(null);
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!password.trim()) {
+      setLoginError('Please enter a password');
+      return;
+    }
+
+    setLoginLoading(true);
+    setLoginError(null);
+
+    try {
+      const response = await api.login(password);
+      if (response.success) {
+        onAuthChange(true);
+        setIsPasswordModalOpen(false);
+        onOpenApp();
+      }
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      void handleLogin();
+    }
+  };
 
   const handleReset = () => {
     setIsResetModalOpen(true);
@@ -101,10 +157,11 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
-              onClick={onOpenApp}
+              onClick={handleOpenApp}
               size="lg"
               className="gap-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
             >
+              <Lock className="h-4 w-4" />
               Open app
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -126,6 +183,53 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
           </div>
         </header>
 
+        <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/50 p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-blue-700">Project Deliverables</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <a
+              href="https://github.com/anttituomola/ai-email-inbox"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div className="rounded-lg bg-gray-900 p-2 text-white">
+                <Github className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-gray-900">GitHub Repository</p>
+                <p className="text-sm text-gray-500 truncate">Source code & README</p>
+              </div>
+              <ExternalLink className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
+            </a>
+
+            <a
+              href="https://ai-email-inbox.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div className="rounded-lg bg-blue-600 p-2 text-white">
+                <ExternalLink className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-gray-900">Live Demo</p>
+                <p className="text-sm text-gray-500 truncate">Deployed on Vercel</p>
+              </div>
+              <ExternalLink className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
+            </a>
+
+            <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <div className="rounded-lg bg-gray-400 p-2 text-white">
+                <Video className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-gray-700">Loom Walkthrough</p>
+                <p className="text-sm text-gray-500">Coming soon (max 5 min)</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="mt-10 grid gap-5 lg:grid-cols-2">
           {summaryCards.map(({ title, icon: Icon, items }) => (
             <article key={title} className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">
@@ -140,22 +244,85 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
           ))}
         </section>
 
-        <section className="mt-10">
+        <section className="mt-10 grid gap-5 lg:grid-cols-2">
+          <article className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900">Walkthrough Preview</h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              The Loom video (max 5 minutes) will cover:
+            </p>
+            <BulletList
+              items={[
+                <><strong>Implementation approach</strong>: FastAPI backend, React frontend, OpenAI integration</>,
+                <><strong>UX decisions</strong>: Trust-first design, visible AI reasoning, "Send & Next" workflow</>,
+                <><strong>Trade-offs</strong>: Speed vs. accuracy, scope limitations, intentional simplicity</>,
+                <><strong>Future improvements</strong>: Multi-layer validation, richer data, learning from feedback</>,
+              ]}
+              tone="soft"
+              className="mt-4 space-y-3 text-sm leading-6 text-gray-600"
+            />
+          </article>
+
           <article className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900">Future development ideas</h2>
             <p className="mt-2 text-sm leading-6 text-gray-600 max-w-3xl">
-              These are <strong>intentionally not packed</strong> into the MVP. The goal was to keep the current
-              product <strong>simple, maintainable, and easy to trust</strong> before layering on more advanced
-              automation.
+              These are <strong>intentionally not packed</strong> into the MVP to keep the product
+              <strong> simple and maintainable</strong>.
             </p>
-            <BulletList 
-              items={futureIdeas} 
-              tone="soft" 
-              className="mt-6 grid gap-x-12 gap-y-4 text-sm leading-6 text-gray-600 md:grid-cols-2"
+            <BulletList
+              items={futureIdeas.slice(0, 4)}
+              tone="soft"
+              className="mt-4 space-y-3 text-sm leading-6 text-gray-600"
             />
           </article>
         </section>
       </div>
+
+      {/* Password login modal */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
+          <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="rounded-lg bg-blue-100 p-2">
+                <Lock className="h-5 w-5 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Enter demo password</h3>
+            </div>
+            <p className="mb-4 text-sm text-gray-600">
+              This is a protected demo. Please enter the password to access the app.
+            </p>
+            <div className="space-y-3">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Password"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoFocus
+              />
+              {loginError && (
+                <p className="text-sm text-red-600">{loginError}</p>
+              )}
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPasswordModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleLogin}
+                isLoading={loginLoading}
+              >
+                Open app
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reset confirmation modal */}
       {isResetModalOpen && (
