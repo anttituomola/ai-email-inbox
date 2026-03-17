@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import debounce from 'lodash.debounce';
 import { api } from '../api';
 import { individualDraftGenerationManager } from '../services/individualDraftGenerationManager.ts';
-import { openDraftGenerationManager } from '../services/openDraftGenerationManager.ts';
+import { draftReviewManager } from '../services/draftReviewManager.ts';
 import type { EmailDetail, EmailStatus, GenerateDraftResponse } from '../types';
 import { DraftReplyPanel } from './workspace/DraftReplyPanel';
 import { GuestSummaryCard } from './workspace/GuestSummaryCard';
@@ -103,6 +103,7 @@ export function EmailWorkspace({
 
   useEffect(() => {
     let isActive = true;
+    let reviewTimeoutId: number | null = null;
 
     const loadReviewForExistingDraft = async () => {
       if (!email?.id) {
@@ -110,56 +111,75 @@ export function EmailWorkspace({
       }
 
       const targetEmailId = email.id;
-      const targetDraftText = email.draft_text;
+      const targetDraftText = draft;
       const existingDraft = targetDraftText?.trim();
-      if (!existingDraft || draftResponse !== null) {
-        return;
-      }
-
-      const cachedIndividualReview = individualDraftGenerationManager.getResponseForEmail(targetEmailId);
-      if (cachedIndividualReview) {
-        if (isActive && email?.id === targetEmailId && email.draft_text === targetDraftText) {
-          setDraftResponse({
-            ...cachedIndividualReview,
-            draft_text: targetDraftText,
-          });
+      if (!existingDraft) {
+        if (isActive) {
+          setDraftResponse(null);
+          setIsReviewLoading(false);
         }
         return;
       }
 
-      const cachedBulkReview = openDraftGenerationManager.getReviewForEmail(targetEmailId);
-      if (cachedBulkReview) {
-        if (isActive && email?.id === targetEmailId && email.draft_text === targetDraftText) {
+      if (draftResponse?.draft_text === targetDraftText) {
+        return;
+      }
+
+      const cachedIndividualReview = individualDraftGenerationManager.getResponseForEmail(targetEmailId);
+      if (cachedIndividualReview?.draft_text === targetDraftText) {
+        if (isActive && email?.id === targetEmailId && draft === targetDraftText) {
           setDraftResponse({
-            ...cachedBulkReview,
+            ...cachedIndividualReview,
             draft_text: targetDraftText,
           });
+          setIsReviewLoading(false);
+        }
+        return;
+      }
+
+      const cachedDraftReview = draftReviewManager.getCachedReview(targetEmailId, targetDraftText);
+      if (cachedDraftReview) {
+        if (isActive && email?.id === targetEmailId && draft === targetDraftText) {
+          setDraftResponse({
+            draft_text: targetDraftText,
+            citations: cachedDraftReview.citations,
+            unanswered_questions: cachedDraftReview.unanswered_questions,
+            review_items: cachedDraftReview.review_items,
+          });
+          setIsReviewLoading(false);
         }
         return;
       }
 
       try {
         if (isActive) {
+          setDraftResponse(null);
           setIsReviewLoading(true);
         }
 
-        const reviewResponse = await api.reviewDraft(targetEmailId, targetDraftText);
-        if (!isActive || email?.id !== targetEmailId || email.draft_text !== targetDraftText) {
-          return;
-        }
+        reviewTimeoutId = window.setTimeout(async () => {
+          try {
+            const reviewResponse = await draftReviewManager.start(targetEmailId, targetDraftText);
+            if (!isActive || email?.id !== targetEmailId || draft !== targetDraftText) {
+              return;
+            }
 
-        setDraftResponse({
-          draft_text: targetDraftText,
-          citations: reviewResponse.citations,
-          unanswered_questions: reviewResponse.unanswered_questions,
-          review_items: reviewResponse.review_items,
-        });
+            setDraftResponse({
+              draft_text: targetDraftText,
+              citations: reviewResponse.citations,
+              unanswered_questions: reviewResponse.unanswered_questions,
+              review_items: reviewResponse.review_items,
+            });
+          } catch {
+            // Keep checklist minimal if review fetch fails.
+          } finally {
+            if (isActive) {
+              setIsReviewLoading(false);
+            }
+          }
+        }, 350);
       } catch {
         // Keep checklist minimal if review fetch fails.
-      } finally {
-        if (isActive) {
-          setIsReviewLoading(false);
-        }
       }
     };
 
@@ -167,8 +187,11 @@ export function EmailWorkspace({
 
     return () => {
       isActive = false;
+      if (reviewTimeoutId !== null) {
+        window.clearTimeout(reviewTimeoutId);
+      }
     };
-  }, [email?.id, email?.draft_text, draftResponse]);
+  }, [draft, draftResponse?.draft_text, email?.id]);
 
   useEffect(() => {
     const loadModelConfig = async () => {
@@ -341,8 +364,8 @@ export function EmailWorkspace({
 
   const isResolved = email.status === 'resolved';
   const isGenerating = generationState.isRunning && generationState.emailId === email.id;
-  // Use citations from the initial AI generation (no revalidation after edits)
-  const activeCitations = draftResponse?.citations ?? [];
+  const activeDraftResponse = draftResponse?.draft_text === draft ? draftResponse : null;
+  const activeCitations = activeDraftResponse?.citations ?? [];
   const hasDraft = draft.trim().length > 0;
 
   return (
@@ -383,7 +406,7 @@ export function EmailWorkspace({
         {!isResolved && (
           <WorkspaceReviewPanel
             hasDraft={hasDraft}
-            draftResponse={draftResponse}
+            draftResponse={activeDraftResponse}
             isLoading={isReviewLoading}
           />
         )}
