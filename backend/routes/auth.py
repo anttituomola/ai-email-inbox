@@ -10,6 +10,8 @@ active_sessions: set[str] = set()
 
 DEMO_PASSWORD = os.getenv("DEMO_PASSWORD", "demo123")  # Default for dev only
 COOKIE_NAME = "demo_session"
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "none" if COOKIE_SECURE else "lax")
 
 
 class LoginRequest(BaseModel):
@@ -43,8 +45,8 @@ async def login(request: Request, response: Response, data: LoginRequest):
         key=COOKIE_NAME,
         value=session_id,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
         max_age=86400,  # 24 hours
     )
 
@@ -56,7 +58,11 @@ async def logout(request: Request, response: Response):
     session_id = request.cookies.get(COOKIE_NAME)
     if session_id and session_id in active_sessions:
         active_sessions.discard(session_id)
-    response.delete_cookie(COOKIE_NAME)
+    response.delete_cookie(
+        COOKIE_NAME,
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+    )
     return {"message": "Logged out successfully"}
 
 
