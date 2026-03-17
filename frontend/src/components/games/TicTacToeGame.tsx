@@ -79,7 +79,7 @@ export function TicTacToeGame() {
   };
 
   return (
-    <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm max-w-md">
+    <div className="mt-8 rounded-lg border border-gray-300 bg-white p-6 shadow-sm max-w-md">
       <h2 className="text-lg font-semibold text-gray-900">Inbox cleared. Play Tic-Tac-Toe</h2>
       <p className="mt-1 text-sm text-gray-500">You are X, computer is O.</p>
 

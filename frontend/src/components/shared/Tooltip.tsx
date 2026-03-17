@@ -24,7 +24,7 @@ export function Tooltip({
     <span className="relative inline-flex items-center justify-center group">
       {children}
       <span
-        className={`pointer-events-none absolute ${positionClasses[position]} z-10 w-max ${maxWidth} rounded-md bg-white border border-gray-200 px-4 py-3 text-left text-xs normal-case tracking-normal text-gray-600 opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100`}
+        className={`pointer-events-none absolute ${positionClasses[position]} z-10 w-max ${maxWidth} rounded-md bg-white border border-gray-300 px-4 py-3 text-left text-xs normal-case tracking-normal text-gray-600 opacity-0 shadow-xl transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100`}
       >
         {content}
       </span>
@@ -54,7 +54,7 @@ export function InfoTooltip({ content }: InfoTooltipProps) {
     >
       <button
         type="button"
-        className="group inline-flex h-5 w-5 items-center justify-center rounded-full border border-gray-200 text-[11px] font-semibold text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors"
+        className="group inline-flex h-5 w-5 items-center justify-center rounded-full border border-gray-400 text-[11px] font-semibold text-gray-500 hover:text-gray-800 hover:border-gray-500 transition-colors"
         aria-label={content.join(' ')}
       >
         i

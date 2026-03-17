@@ -318,7 +318,7 @@ export function EmailWorkspace({
 
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 flex flex-col overflow-y-auto">
-          <div className="p-6 border-b border-gray-200 bg-white">
+          <div className="p-6 border-b border-gray-300 bg-white">
             <GuestSummaryCard guest={email.guest} />
             <div className="mt-6 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
               {email.body}

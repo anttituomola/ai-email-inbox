@@ -9,7 +9,7 @@ interface ReviewChecklistProps {
 export function ReviewChecklist({ hasDraft, draftResponse, isLoading = false }: ReviewChecklistProps) {
   if (!hasDraft) {
     return (
-      <div className="bg-gray-50 rounded-lg border border-gray-200 p-5 text-center text-gray-500 text-sm shadow-sm">
+      <div className="bg-gray-50 rounded-lg border border-gray-300 p-5 text-center text-gray-500 text-sm shadow-sm">
         Generate or write a draft to enable AI review.
       </div>
     );
@@ -17,7 +17,7 @@ export function ReviewChecklist({ hasDraft, draftResponse, isLoading = false }: 
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-5 text-sm text-gray-600 shadow-sm">
+      <div className="rounded-lg border border-gray-300 bg-gray-50 p-5 text-sm text-gray-600 shadow-sm">
         Loading AI review...
       </div>
     );
@@ -26,7 +26,7 @@ export function ReviewChecklist({ hasDraft, draftResponse, isLoading = false }: 
   // If draft was written manually (not AI-generated), show a simple message
   if (!draftResponse) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-5 text-sm text-gray-600 shadow-sm">
+      <div className="rounded-lg border border-gray-300 bg-gray-50 p-5 text-sm text-gray-600 shadow-sm">
         AI review is only available for generated drafts.
       </div>
     );
@@ -51,7 +51,7 @@ export function ReviewChecklist({ hasDraft, draftResponse, isLoading = false }: 
               </h4>
               <div className="space-y-2">
                 {unansweredQuestions.map((question, index) => (
-                  <div key={`${question}-${index}`} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm border-l-4 border-l-amber-400">
+                  <div key={`${question}-${index}`} className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm border-l-4 border-l-amber-400">
                     <p className="text-sm text-gray-800">{question}</p>
                   </div>
                 ))}
@@ -67,7 +67,7 @@ export function ReviewChecklist({ hasDraft, draftResponse, isLoading = false }: 
               </h4>
               <div className="space-y-2">
                 {warningItems.map((item) => (
-                  <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm border-l-4 border-l-amber-400">
+                  <div key={item.id} className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm border-l-4 border-l-amber-400">
                     <p className="text-sm text-gray-800">{item.description}</p>
                   </div>
                 ))}

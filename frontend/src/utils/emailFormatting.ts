@@ -49,7 +49,7 @@ export function formatEmailListTime(dateStr: string, isResolved: boolean): strin
 
 export function formatHandlingTime(minutes: number | null): string {
   if (minutes === null) {
-    return 'N/A';
+    return '—';
   }
 
   if (minutes < 60) {

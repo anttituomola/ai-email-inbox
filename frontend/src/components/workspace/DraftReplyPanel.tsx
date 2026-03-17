@@ -89,7 +89,7 @@ export function DraftReplyPanel({
         {!isResolved && (
           <div className="flex items-center gap-2">
             {hasDraft && (
-              <div className="inline-flex rounded-md border border-gray-200 p-1 text-sm bg-white shadow-sm">
+              <div className="inline-flex rounded-md border border-gray-300 p-1 text-sm bg-white shadow-sm">
                 <button
                   type="button"
                   onClick={() => onEditorModeChange('preview')}
@@ -135,7 +135,7 @@ export function DraftReplyPanel({
                   <SparklesIcon className="w-5 h-5" />
                 </button>
                 {isModelDropdownOpen && (
-                  <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg py-1 z-50">
                     <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 mb-1">
                       AI Model
                     </div>
@@ -248,7 +248,7 @@ export function DraftReplyPanel({
       )}
 
       {isResolved && (
-        <div className="border-t border-gray-200 p-4 bg-gray-50 mt-6 -mx-6 -mb-6">
+        <div className="border-t border-gray-300 p-4 bg-gray-50 mt-6 -mx-6 -mb-6">
           <div className="text-sm text-gray-600 text-center">
             This email has been resolved. Sent on{' '}
             {formatWorkspaceDate(email.sent_at || email.received_at)}

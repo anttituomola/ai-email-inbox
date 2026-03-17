@@ -83,7 +83,7 @@ export function InboxApp({ onExitApp }: InboxAppProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3">
+      <div className="flex items-center justify-between border-b border-gray-300 bg-white px-5 py-3">
         <button
           type="button"
           onClick={() => handleSelect(null)}

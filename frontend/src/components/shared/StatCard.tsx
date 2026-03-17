@@ -27,7 +27,7 @@ export function StatCard({
   const cardContent = (
     <>
       <div className="flex items-center gap-2 mb-2">
-        <Icon className={`w-4 h-4 text-gray-400 ${isClickable ? 'group-hover:text-blue-500' : ''} transition-colors`} />
+        <Icon className={`w-4 h-4 text-gray-500 ${isClickable ? 'group-hover:text-blue-500' : ''} transition-colors`} />
         <h3 className="font-semibold text-gray-500 uppercase text-xs tracking-wider">{title}</h3>
         {rightElement}
       </div>
@@ -39,7 +39,7 @@ export function StatCard({
   );
 
   const baseClasses =
-    'bg-white rounded-lg shadow-sm p-6 border border-gray-200 animate-fade-in';
+    'bg-white rounded-lg shadow-sm p-6 border border-gray-300 animate-fade-in';
 
   if (isClickable) {
     return (

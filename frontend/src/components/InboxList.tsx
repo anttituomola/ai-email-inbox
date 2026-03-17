@@ -26,9 +26,9 @@ export function InboxList({
   onSortChange,
 }: InboxListProps) {
   return (
-    <div className="w-80 border-r border-gray-200 flex flex-col bg-gray-50 shadow-sm z-10">
+    <div className="w-80 border-r border-gray-300 flex flex-col bg-gray-50 shadow-sm z-10">
       {/* Header */}
-      <div className="flex flex-col bg-white border-b border-gray-200 h-[116px]">
+      <div className="flex flex-col bg-white border-b border-gray-300 h-[116px]">
         <div className="px-5 pt-6 flex items-center justify-between">
           <button 
             onClick={() => onSelect(null)}
@@ -38,7 +38,7 @@ export function InboxList({
           </button>
           <button
             onClick={() => onSortChange(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-md transition-colors"
+            className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 px-3 py-1.5 rounded-md transition-colors"
             title={SORT_TOGGLE_TITLES[sortOrder]}
           >
             <span className="font-medium">Sort:</span>
@@ -48,7 +48,7 @@ export function InboxList({
         
         {/* Filter tabs */}
         <div className="px-5 mt-auto">
-          <div className="flex border-b border-gray-200">
+          <div className="flex border-b border-gray-300">
             {EMAIL_FILTER_OPTIONS.map((filterOption) => (
               <button
                 key={filterOption.value}
@@ -77,7 +77,7 @@ export function InboxList({
             <button
               key={email.id}
               onClick={() => onSelect(email.id)}
-              className={`w-full text-left p-5 border-b border-gray-200 transition-all ${
+              className={`w-full text-left p-5 border-b border-gray-300 transition-all ${
                 selectedId === email.id
                   ? 'bg-blue-50 border-l-4 border-l-blue-600 shadow-inner animate-highlight-pulse'
                   : 'bg-white hover:bg-gray-50 border-l-4 border-l-transparent'

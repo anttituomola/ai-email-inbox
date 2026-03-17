@@ -160,7 +160,7 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
       {/* Reset confirmation modal */}
       {isResetModalOpen && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/30 px-4">
-          <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-5 shadow-xl">
+          <div className="w-full max-w-sm rounded-lg border border-gray-300 bg-white p-5 shadow-xl">
             <p className="text-sm text-gray-800">
               <strong>Reset the demo inbox</strong> to a clean testing state? This clears <strong>drafts, sent replies, and statuses</strong>.
             </p>

@@ -88,7 +88,7 @@ export function GenerateOpenDraftsControl({
 
       {pendingDraftGenerationCount !== null && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/30 px-4">
-          <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-5 shadow-xl">
+          <div className="w-full max-w-sm rounded-lg border border-gray-300 bg-white p-5 shadow-xl">
             <p className="text-sm text-gray-800">
               Generate draft responses for {pendingDraftGenerationCount} open email
               {pendingDraftGenerationCount === 1 ? '' : 's'}?

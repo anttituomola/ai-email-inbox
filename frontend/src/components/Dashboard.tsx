@@ -11,11 +11,13 @@ const MEDIAN_TIME_TOOLTIP = {
   today: [
     'Calculated from resolved emails sent today.',
     'For each resolved email, handling time is measured from received to sent. This card shows the median of those times.',
+    "Shows '—' when no emails have been resolved yet.",
     'Improve it by replying faster, using Generate Draft earlier, and clearing older unresolved emails before they pile up.',
   ],
   week: [
     'Calculated from resolved emails sent since the start of this week.',
     'For each resolved email, handling time is measured from received to sent. This card shows the median of those times.',
+    "Shows '—' when no emails have been resolved yet.",
     'Improve it by keeping daily response times low and resolving emails consistently throughout the week.',
   ],
 } as const;

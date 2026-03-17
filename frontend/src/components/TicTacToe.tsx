@@ -71,7 +71,7 @@ export function TicTacToe() {
           : 'Your turn';
 
   return (
-    <div className="flex flex-col items-center justify-center p-10 bg-white rounded-xl shadow-sm border border-gray-200 animate-pop-in">
+    <div className="flex flex-col items-center justify-center p-10 bg-white rounded-xl shadow-sm border border-gray-300 animate-pop-in">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">🎉 Inbox Zero!</h2>
         <p className="text-gray-500">You've cleared all your emails. Treat yourself to a quick game.</p>
@@ -87,7 +87,7 @@ export function TicTacToe() {
             key={i}
             onClick={() => handleClick(i)}
             disabled={gameOver || isComputerThinking || square !== null || !humanTurn}
-            className="w-20 h-20 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-3xl font-bold flex items-center justify-center transition-colors text-blue-600 disabled:opacity-80 disabled:cursor-not-allowed"
+            className="w-20 h-20 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-lg text-3xl font-bold flex items-center justify-center transition-colors text-blue-600 disabled:opacity-80 disabled:cursor-not-allowed"
           >
             {square}
           </button>
