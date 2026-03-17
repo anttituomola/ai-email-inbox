@@ -1,10 +1,11 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import select
+import os
 from base import Base
 from models import Email
 from seed_data import seed_database
 
-DATABASE_URL = "sqlite+aiosqlite:///./inbox.db"
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./inbox.db")
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

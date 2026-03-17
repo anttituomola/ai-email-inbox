@@ -192,10 +192,13 @@ If `OPENAI_MODEL` is omitted, the backend defaults to `gpt-5-nano`.
 4. **Safe-by-default**: No placeholder text, clear unsupported items
 5. **Human in control**: Always editable, always reviewable
 
+## Deployment
+
+For production deployment instructions (Vercel frontend + UpCloud VM backend), see [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Out of Scope
 
 - Real email sending (just logs to database)
 - Authentication
 - Complex threading
 - Folders/labels
-- Production deployment setup

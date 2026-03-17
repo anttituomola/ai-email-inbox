@@ -12,7 +12,8 @@ backend/.env
 backend/inbox.db
 
 # Plans
-.cursor/plans/
+.cursor/plans
+.cursor/docs
 
 # Frontend
 frontend/node_modules/
