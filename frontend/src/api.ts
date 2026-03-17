@@ -15,18 +15,47 @@ import type {
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const DEMO_TOKEN_STORAGE_KEY = 'demoAuthToken';
+
+function getStoredAuthToken(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return window.sessionStorage.getItem(DEMO_TOKEN_STORAGE_KEY);
+}
+
+function setStoredAuthToken(token: string | null) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  if (token) {
+    window.sessionStorage.setItem(DEMO_TOKEN_STORAGE_KEY, token);
+    return;
+  }
+
+  window.sessionStorage.removeItem(DEMO_TOKEN_STORAGE_KEY);
+}
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const headers = new Headers(options?.headers);
+  headers.set('Content-Type', 'application/json');
+
+  const authToken = getStoredAuthToken();
+  if (authToken) {
+    headers.set('Authorization', `Bearer ${authToken}`);
+  }
+
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   });
   
   if (!response.ok) {
+    if (response.status === 401) {
+      setStoredAuthToken(null);
+    }
     throw new Error(`API error: ${response.status}`);
   }
   
@@ -101,19 +130,34 @@ export const api = {
   getAIModels: () => fetchAPI<AIModelsResponse>('/ai/models'),
 
   // Auth
-  login: (password: string) =>
-    fetchAPI<LoginResponse>('/auth/login', {
+  login: async (password: string) => {
+    const response = await fetchAPI<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ password } satisfies LoginRequest),
-    }),
+    });
+    setStoredAuthToken(response.token);
+    return response;
+  },
 
-  logout: () =>
-    fetchAPI<{ message: string }>('/auth/logout', {
-      method: 'POST',
-    }),
+  logout: async () => {
+    try {
+      return await fetchAPI<{ message: string }>('/auth/logout', {
+        method: 'POST',
+      });
+    } finally {
+      setStoredAuthToken(null);
+    }
+  },
 
   checkSession: () =>
     fetchAPI<SessionResponse>('/auth/session'),
+
+  hasStoredSession: () =>
+    Boolean(getStoredAuthToken()),
+
+  clearStoredSession: () => {
+    setStoredAuthToken(null);
+  },
 
   // Reset demo state
   resetDemoData: () =>
@@ -126,12 +170,17 @@ export const api = {
     onEvent: (event: OpenDraftGenerationEvent) => void,
     signal?: AbortSignal
   ) => {
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+
+    const authToken = getStoredAuthToken();
+    if (authToken) {
+      headers.set('Authorization', `Bearer ${authToken}`);
+    }
+
     const response = await fetch(`${API_BASE}/ai/generate-open-drafts/stream`, {
       method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({}),
       signal,
     });

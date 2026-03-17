@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, HTTPException, Response, Request
 from pydantic import BaseModel
 
 
@@ -21,6 +21,7 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     success: bool
     message: str
+    token: str
 
 
 class SessionResponse(BaseModel):
@@ -28,6 +29,13 @@ class SessionResponse(BaseModel):
 
 
 router = APIRouter()
+
+
+def _get_session_id(request: Request) -> str | None:
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        return auth_header.removeprefix("Bearer ").strip() or None
+    return request.cookies.get(COOKIE_NAME)
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -50,12 +58,12 @@ async def login(request: Request, response: Response, data: LoginRequest):
         max_age=86400,  # 24 hours
     )
 
-    return LoginResponse(success=True, message="Logged in successfully")
+    return LoginResponse(success=True, message="Logged in successfully", token=session_id)
 
 
 @router.post("/logout")
 async def logout(request: Request, response: Response):
-    session_id = request.cookies.get(COOKIE_NAME)
+    session_id = _get_session_id(request)
     if session_id and session_id in active_sessions:
         active_sessions.discard(session_id)
     response.delete_cookie(
@@ -68,14 +76,14 @@ async def logout(request: Request, response: Response):
 
 @router.get("/session", response_model=SessionResponse)
 async def check_session(request: Request):
-    session_id = request.cookies.get(COOKIE_NAME)
+    session_id = _get_session_id(request)
     is_authenticated = session_id is not None and session_id in active_sessions
     return SessionResponse(authenticated=is_authenticated)
 
 
 # Dependency to verify session for protected routes
 async def require_auth(request: Request):
-    session_id = request.cookies.get(COOKIE_NAME)
+    session_id = _get_session_id(request)
     if not session_id or session_id not in active_sessions:
         raise HTTPException(status_code=401, detail="Authentication required")
     return session_id

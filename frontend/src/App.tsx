@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ReviewerLandingPage } from './components/ReviewerLandingPage';
 import { InboxApp } from './components/InboxApp';
+import { api } from './api';
 
 const APP_PATH = '/app';
 
@@ -11,6 +12,7 @@ function resolveRoute(pathname: string) {
 function App() {
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthResolved, setIsAuthResolved] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -19,6 +21,29 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (!api.hasStoredSession()) {
+      setIsAuthenticated(false);
+      setIsAuthResolved(true);
+      return;
+    }
+
+    api.checkSession()
+      .then((session) => {
+        setIsAuthenticated(session.authenticated);
+        if (!session.authenticated) {
+          api.clearStoredSession();
+        }
+      })
+      .catch(() => {
+        api.clearStoredSession();
+        setIsAuthenticated(false);
+      })
+      .finally(() => {
+        setIsAuthResolved(true);
+      });
   }, []);
 
   const navigate = useCallback((path: string) => {
@@ -32,10 +57,19 @@ function App() {
 
   const handleAuthChange = useCallback((authenticated: boolean) => {
     setIsAuthenticated(authenticated);
+    setIsAuthResolved(true);
   }, []);
 
+  if (!isAuthResolved) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-500">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    resolveRoute(currentPath) === 'app'
+    resolveRoute(currentPath) === 'app' && isAuthenticated
       ? <InboxApp onExitApp={() => navigate('/')} />
       : <ReviewerLandingPage
           onOpenApp={() => navigate(APP_PATH)}

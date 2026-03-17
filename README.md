@@ -11,6 +11,8 @@ The product focuses on **human-reviewed AI assistance** - making staff faster an
 - Easy review and editing workflow
 - Fast "Send & Next" flow for processing multiple emails
 
+The public landing page can stay open, while the working app can be protected with a backend-validated demo password gate.
+
 ## Tech Stack
 
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS
@@ -195,7 +197,7 @@ If `OPENAI_MODEL` is omitted, the backend defaults to `gpt-5-nano`.
 ## Out of Scope
 
 - Real email sending (just logs to database)
-- Authentication
+- Full user authentication and account management
 - Complex threading
 - Folders/labels
 
