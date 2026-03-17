@@ -20,9 +20,11 @@ async def clear_responses_and_statuses():
                 )
             )
             result = await session.execute(stmt)
-            print(f"Cleared responses and reset status for {result.rowcount} emails.")
+            rowcount = result.rowcount or 0
         await session.commit()
+        return rowcount
 
 
 if __name__ == "__main__":
-    asyncio.run(clear_responses_and_statuses())
+    cleared_count = asyncio.run(clear_responses_and_statuses())
+    print(f"Cleared responses and reset status for {cleared_count} emails.")

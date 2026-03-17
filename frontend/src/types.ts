@@ -78,6 +78,11 @@ export interface NextEmailResponse {
   email?: EmailDetail;
 }
 
+export interface DemoResetResponse {
+  reset_email_count: number;
+  message: string;
+}
+
 export type OpenDraftGenerationEvent =
   | {
       type: 'start';

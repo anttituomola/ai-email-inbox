@@ -192,13 +192,20 @@ If `OPENAI_MODEL` is omitted, the backend defaults to `gpt-5-nano`.
 4. **Safe-by-default**: No placeholder text, clear unsupported items
 5. **Human in control**: Always editable, always reviewable
 
-## Deployment
-
-For production deployment instructions (Vercel frontend + UpCloud VM backend), see [DEPLOYMENT.md](DEPLOYMENT.md).
-
 ## Out of Scope
 
 - Real email sending (just logs to database)
 - Authentication
 - Complex threading
 - Folders/labels
+
+## Future Improvements
+
+These are ideas intentionally left out of the MVP so the current product stays simple, maintainable, and easy to evaluate:
+
+- Stronger source-backed validation UX, such as making supported claims more visually prominent inside the draft and surfacing their sources even faster during review.
+- Richer seeded data for customer profiles, thread history, and hotel FAQ content so AI suggestions can be reviewed against clearer internal sources.
+- More advanced workflow states like snoozing, delegation, review ownership, and scheduled follow-up behavior.
+- Two-step validation for drafts: cheap deterministic checks for concrete facts first, then low-cost AI fact checking.
+- Background analytics and pre-generated draft queues for emails that appear safe to answer quickly.
+- Tone controls and eventually a feedback loop that learns from approved sent replies.

@@ -1,5 +1,6 @@
 import type {
   AIModelsResponse,
+  DemoResetResponse,
   EmailDetail,
   EmailListItem,
   EmailStats,
@@ -94,6 +95,12 @@ export const api = {
 
   // AI model config
   getAIModels: () => fetchAPI<AIModelsResponse>('/ai/models'),
+
+  // Reset demo state
+  resetDemoData: () =>
+    fetchAPI<DemoResetResponse>('/admin/reset-demo', {
+      method: 'POST',
+    }),
 
   // Generate drafts for all open emails and stream progress
   generateOpenDraftsStream: async (

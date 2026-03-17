@@ -122,3 +122,8 @@ class EmailStats(BaseModel):
 class NextEmailResponse(BaseModel):
     has_next: bool
     email: Optional[EmailDetail] = None
+
+
+class DemoResetResponse(BaseModel):
+    reset_email_count: int
+    message: str
