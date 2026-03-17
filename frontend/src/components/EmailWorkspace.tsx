@@ -102,39 +102,54 @@ export function EmailWorkspace({
   }, [email?.id]);
 
   useEffect(() => {
+    let isActive = true;
+
     const loadReviewForExistingDraft = async () => {
       if (!email?.id) {
         return;
       }
 
-      const existingDraft = email.draft_text?.trim();
+      const targetEmailId = email.id;
+      const targetDraftText = email.draft_text;
+      const existingDraft = targetDraftText?.trim();
       if (!existingDraft || draftResponse !== null) {
         return;
       }
 
-      const cachedIndividualReview = individualDraftGenerationManager.getResponseForEmail(email.id);
+      const cachedIndividualReview = individualDraftGenerationManager.getResponseForEmail(targetEmailId);
       if (cachedIndividualReview) {
-        setDraftResponse({
-          ...cachedIndividualReview,
-          draft_text: email.draft_text,
-        });
+        if (isActive && email?.id === targetEmailId && email.draft_text === targetDraftText) {
+          setDraftResponse({
+            ...cachedIndividualReview,
+            draft_text: targetDraftText,
+          });
+        }
         return;
       }
 
-      const cachedBulkReview = openDraftGenerationManager.getReviewForEmail(email.id);
+      const cachedBulkReview = openDraftGenerationManager.getReviewForEmail(targetEmailId);
       if (cachedBulkReview) {
-        setDraftResponse({
-          ...cachedBulkReview,
-          draft_text: email.draft_text,
-        });
+        if (isActive && email?.id === targetEmailId && email.draft_text === targetDraftText) {
+          setDraftResponse({
+            ...cachedBulkReview,
+            draft_text: targetDraftText,
+          });
+        }
         return;
       }
 
       try {
-        setIsReviewLoading(true);
-        const reviewResponse = await api.reviewDraft(email.id, email.draft_text);
+        if (isActive) {
+          setIsReviewLoading(true);
+        }
+
+        const reviewResponse = await api.reviewDraft(targetEmailId, targetDraftText);
+        if (!isActive || email?.id !== targetEmailId || email.draft_text !== targetDraftText) {
+          return;
+        }
+
         setDraftResponse({
-          draft_text: email.draft_text,
+          draft_text: targetDraftText,
           citations: reviewResponse.citations,
           unanswered_questions: reviewResponse.unanswered_questions,
           review_items: reviewResponse.review_items,
@@ -142,11 +157,17 @@ export function EmailWorkspace({
       } catch {
         // Keep checklist minimal if review fetch fails.
       } finally {
-        setIsReviewLoading(false);
+        if (isActive) {
+          setIsReviewLoading(false);
+        }
       }
     };
 
     void loadReviewForExistingDraft();
+
+    return () => {
+      isActive = false;
+    };
   }, [email?.id, email?.draft_text, draftResponse]);
 
   useEffect(() => {
