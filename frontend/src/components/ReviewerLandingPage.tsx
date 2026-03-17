@@ -19,7 +19,7 @@ const futureIdeas = [
 function BulletList({
   items,
   tone = 'default',
-  className = 'mt-5 space-y-3 text-sm leading-6 text-slate-600'
+  className = 'mt-5 space-y-3 text-sm leading-6 text-gray-600'
 }: {
   items: readonly ReactNode[];
   tone?: 'default' | 'soft';
@@ -27,8 +27,8 @@ function BulletList({
 }) {
   const bulletClassName =
     tone === 'soft'
-      ? 'mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400/70'
-      : 'mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500/80';
+      ? 'mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400/70'
+      : 'mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500/80';
 
   return (
     <ul className={className}>
@@ -86,14 +86,14 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 text-slate-900">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10 lg:px-10">
-        <header className="flex flex-col gap-6 border-b border-slate-200 pb-10 lg:flex-row lg:items-end lg:justify-between">
+        <header className="flex flex-col gap-6 border-b border-gray-300 pb-10 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+            <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
               AI Email Inbox
             </h1>
-            <p className="mt-4 text-lg leading-8 text-slate-600">
+            <p className="mt-4 text-lg leading-8 text-gray-600">
               A <strong>trust-first</strong> review workspace for hotel guest emails. The goal is to help staff
               move faster without hiding what the AI is claiming or where those claims came from.
             </p>
@@ -103,7 +103,7 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
             <Button
               onClick={onOpenApp}
               size="lg"
-              className="gap-2 bg-teal-700 text-white hover:bg-teal-800 focus:ring-teal-500"
+              className="gap-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
             >
               Open app
               <ArrowRight className="h-4 w-4" />
@@ -117,7 +117,7 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
                 size="lg"
                 variant="secondary"
                 isLoading={resetState === 'loading'}
-                className="gap-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                className="gap-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
               >
                 <RefreshCcw className="h-4 w-4" />
                 Reset demo data
@@ -128,12 +128,12 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
 
         <section className="mt-10 grid gap-5 lg:grid-cols-2">
           {summaryCards.map(({ title, icon: Icon, items }) => (
-            <article key={title} className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+            <article key={title} className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="rounded-2xl border border-teal-200 bg-teal-50 p-2.5 text-teal-700">
+                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-2.5 text-blue-700">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
               </div>
               <BulletList items={items} />
             </article>
@@ -141,9 +141,9 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
         </section>
 
         <section className="mt-10">
-          <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">Future development ideas</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600 max-w-3xl">
+          <article className="rounded-3xl border border-gray-300 bg-white p-7 shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900">Future development ideas</h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600 max-w-3xl">
               These are <strong>intentionally not packed</strong> into the MVP. The goal was to keep the current
               product <strong>simple, maintainable, and easy to trust</strong> before layering on more advanced
               automation.
@@ -151,7 +151,7 @@ export function ReviewerLandingPage({ onOpenApp }: ReviewerLandingPageProps) {
             <BulletList 
               items={futureIdeas} 
               tone="soft" 
-              className="mt-6 grid gap-x-12 gap-y-4 text-sm leading-6 text-slate-600 md:grid-cols-2"
+              className="mt-6 grid gap-x-12 gap-y-4 text-sm leading-6 text-gray-600 md:grid-cols-2"
             />
           </article>
         </section>
